@@ -1,0 +1,16 @@
+[package]
+name = "graph-runner-demo"
+version = "0.1.0"
+edition = "2024"
+
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 3
+
+[dependencies]
+avian3d = "0.3"
+bevy = { version = "0.16", features = ["dynamic_linking"] }
+bevy-midi-graph = { git = "https://github.com/grimace87/bevy-midi-graph.git", rev = "01bb226c318496254cabf37d0d9ad9888ffb7503" }
+
