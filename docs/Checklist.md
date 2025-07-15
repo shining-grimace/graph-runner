@@ -1,9 +1,6 @@
-
-# Checklist
-
 1. Define Setting
-	- Outline provocative setting
-	- Outline theme
+	- ✅ Outline provocative setting
+	- ✅ Outline theme
 	- Source setting reference images
 2. Define Story
 	- Define story beats
