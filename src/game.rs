@@ -1,12 +1,12 @@
 use crate::{
+    controller::PlayerController,
     loading::{GameAssets, MESH_NAME_MAP, MESH_NAME_PLAYER},
-    markers::Player,
     state::AppState,
 };
 use avian3d::prelude::*;
 use bevy::{gltf::GltfMesh, prelude::*};
 
-const PLAYER_HEIGHT: f32 = 1.74;
+pub const PLAYER_HEIGHT: f32 = 1.74;
 
 pub struct GamePlugin;
 
@@ -45,11 +45,7 @@ fn initialise_game(
         .get(&map_gltf_mesh.primitives[0].mesh)
         .ok_or_else(|| "Map mesh not loaded")?;
     commands.spawn((
-        Player,
-        RigidBody::Dynamic,
-        Collider::cylinder(0.4, PLAYER_HEIGHT),
-        LockedAxes::ROTATION_LOCKED,
-        LinearVelocity::default(),
+        PlayerController,
         Transform::from_xyz(0.0, 0.5 * PLAYER_HEIGHT + 0.05, 0.0),
         Mesh3d(player_gltf_mesh.primitives[0].mesh.clone()),
         MeshMaterial3d(material_assets.add(StandardMaterial {

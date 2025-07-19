@@ -1,4 +1,5 @@
 mod camera;
+mod controller;
 mod game;
 mod input;
 mod lighting;
@@ -21,6 +22,7 @@ fn main() {
             camera::GameCameraPlugin,
             game::GamePlugin,
             input::InputPlugin,
+            controller::CharacterControllerPlugin,
             lighting::LightingPlugin,
             loading::LoadingPlugin,
             mood::MoodPlugin,
