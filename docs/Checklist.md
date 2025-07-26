@@ -1,7 +1,6 @@
 1. Define Setting
 	- ✅ Outline provocative setting
 	- ✅ Outline theme
-	- Source setting reference images
 2. Define Story
 	- Define story beats
 	- First draft
@@ -34,6 +33,7 @@
 	- Cutscenes
 	- Dynamic NPCs
 7. Implement Level Design
+	- Source setting reference images
 	- Block out sections by story beat and emotion
 	- Full graybox
 	- Gameplay testing
