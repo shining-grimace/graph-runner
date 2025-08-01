@@ -1,11 +1,57 @@
-use bevy::prelude::*;
+use avian3d::prelude::*;
+use bevy::{
+    ecs::{component::HookContext, world::DeferredWorld},
+    prelude::*,
+};
 
-#[derive(Component)]
+#[derive(Component, Reflect)]
+#[reflect(Component)]
 pub struct UiRoot;
 
-#[derive(Component)]
+#[derive(Component, Reflect)]
+#[reflect(Component)]
 pub struct Player;
 
-#[derive(Component)]
+#[derive(Component, Reflect)]
+#[reflect(Component)]
 #[component(storage = "SparseSet")]
 pub struct Grounded;
+
+#[derive(Component, Reflect)]
+#[reflect(Component)]
+#[component(on_add = on_trimesh_added)]
+pub struct Trimesh;
+
+pub struct MarkerPlugin;
+
+impl Plugin for MarkerPlugin {
+    fn build(&self, app: &mut App) {
+        app.register_type::<UiRoot>()
+            .register_type::<Player>()
+            .register_type::<Grounded>()
+            .register_type::<Trimesh>();
+    }
+}
+
+fn on_trimesh_added(mut world: DeferredWorld, context: HookContext) {
+    let collider = {
+        let mesh_3d = world.entity(context.entity).get::<Mesh3d>();
+        match mesh_3d {
+            Some(mesh_3d) => {
+                let meshes = world.get_resource::<Assets<Mesh>>().unwrap();
+                let mesh = meshes.get(&mesh_3d.0).unwrap();
+                Some(Collider::trimesh_from_mesh(mesh).unwrap())
+            }
+            None => {
+                eprintln!(
+                    "Trimesh entity {} must have a Mesh3d component",
+                    context.entity
+                );
+                None
+            }
+        }
+    };
+    if let Some(collider) = collider {
+        world.commands().entity(context.entity).insert(collider);
+    };
+}

@@ -10,7 +10,8 @@ use avian3d::{
 };
 use bevy::prelude::*;
 
-#[derive(Component)]
+#[derive(Component, Reflect)]
+#[reflect(Component)]
 #[require(
     Player = Player,
     Collider = PlayerController::collider(),
@@ -68,7 +69,8 @@ pub struct CharacterControllerPlugin;
 
 impl Plugin for CharacterControllerPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(CharacterControllerParams::default())
+        app.register_type::<PlayerController>()
+            .insert_resource(CharacterControllerParams::default())
             .add_systems(
                 Update,
                 (

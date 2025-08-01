@@ -1,13 +1,10 @@
 use crate::{markers::UiRoot, state::AppState};
 use bevy::{asset::LoadState, prelude::*, render::view::RenderLayers};
 
-pub const MESH_NAME_PLAYER: &str = "Player";
-pub const MESH_NAME_MAP: &str = "Map";
-
 #[derive(Resource, Default)]
 pub struct GameAssets {
     pub dev_logo: Handle<Image>,
-    pub models: Handle<Gltf>,
+    pub models: Handle<Scene>,
 }
 
 impl GameAssets {
@@ -95,7 +92,7 @@ fn remove_loading_ui(
 
 fn init_game_assets(ass: Res<AssetServer>, mut game_assets: ResMut<GameAssets>) {
     game_assets.dev_logo = ass.load("images/shining-grimace-logo.png");
-    game_assets.models = ass.load("models/models.glb");
+    game_assets.models = ass.load(GltfAssetLabel::Scene(0).from_asset("models/models.glb"));
 }
 
 fn check_game_assets_ready(

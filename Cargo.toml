@@ -12,5 +12,7 @@ opt-level = 3
 [dependencies]
 avian3d = "0.3"
 bevy = { version = "0.16", features = ["dynamic_linking"] }
+bevy-inspector-egui = "0.31" # 0.32 not working due to https://github.com/jakobhellermann/bevy-inspector-egui/issues/277
 bevy-midi-graph = { git = "https://github.com/grimace87/bevy-midi-graph.git", rev = "01bb226c318496254cabf37d0d9ad9888ffb7503" }
+bevy_skein = "0.2.1"
 
