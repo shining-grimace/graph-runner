@@ -2,9 +2,9 @@
 	- ✅ Outline provocative setting
 	- ✅ Outline theme
 2. Define Story
-	- Define story beats
+	- ✅ Define story beats
 	- First draft
-	- Enumerate characters and locations
+	- ✅ Enumerate characters and locations
 	- Source character reference images
 	- Source location reference images
 	- Draw character designs
@@ -18,9 +18,12 @@
 	- Refine story considering mechanics
 4. Core Design
 	- Splash screen
-	- Menu
+	- Main menu
+	- Pause menu
 	- Camera
+	- Controls
 	- Dialog presentation
+	- Credits
 5. Implement Input Processing
 	- Keyboard
 	- Gamepad

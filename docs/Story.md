@@ -68,17 +68,19 @@ Introduction:
 9. Carrying another artwork to sell
 	- Reveal a new underground path through caves filled with badgers
 	- Background dialog instructs this is the most important sale so far, and it's sealed in a water-tight bag
-	- Passage goes fairly smoothly, making the sale to an aristocrat in the main community
-10. Return with proceeds
+	- Passage goes fairly smoothly; path is secluded, challenging, and untraveled
+10. Sale of artwork
+	- Sale to an aristocrat in the main community
+11. Return with proceeds
 	- On return there's a homeless person in the palace main room who says the artist's son suddenly left to reveal all
 	- Optionally can now enter the main work room for the first time; show artwork on all walls, optional dialog highlights the Artist's well-preserved Bible
 	- The activist appears from within the palace somewhere, explaining she learned these beavers are happy and well-paid, but believes them still trapped by an unequal society held up by the aristocrats
 	- The activist is carrying the machine, declaring its wealth should be shared, and runs off
-11. Return to the main community
+12. Return to the main community
 	- The activist had built a makeshift bridge to get across to the palace
 	- In the homeless region, the artist's son is found having fallen over and become trapped, with a mess of logs simultaneously blocking the player and trapping the artist's son
 	- The activist appears carrying the machine, and destroys it to clear the logs
-12. End
+13. End
 	- The homeless are given paint supplies and start learning to paint as a community
 	- The main community hold art markets with more on sale than even before, while constructions are alive on the fringes towards the homeless region, and the aristocrats watch on with undeterred egos, continued rejection of lower classes, and high views of their existing possessions
 	- The artist's son paints a portrait of the activist, not for sale but for appreciation of its beauty
