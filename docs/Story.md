@@ -1,6 +1,7 @@
 # Cast of Characters
 > Collectively, characters should fill various of Joseph Campbell's archetypes, act on the theme's problem in different ways, fill various roles outlined by genre conventions, and balance order and chaos.
-> Individually, they must act on personal goals and human needs, show unexpected yet realistic characteristics (maybe carry a symbol, respond unexpectedly, defy stereotypes, have strange habits, have delusional self-perception), have a bold introduction (characteristic action or dialog), be likeable (displaying morality, suffering, or strength), and evolve in dealing with conflict (be haunted by it, then be faced by it in new urgency, and fearing the future)
+> Individually, they must act on personal goals and human needs, show unexpected yet realistic characteristics (maybe carry a symbol, respond unexpectedly, defy stereotypes, have strange habits, have delusional self-perception), have a bold introduction (characteristic action or dialog), be likeable (displaying morality, suffering, or strength), and evolve in dealing with conflict (be haunted by it, then be faced by it in new urgency, and fearing the future).
+> All characters must have a goal, and always act on it. A good antagonist is an obstacle to the protagonist reaching their goals, and need not be a person, but regardless should have a reason for existing in the setting (if they're a person they need a goal and it should be at least understandable to some degree).
 ## The Player
 Description: Palace staff member, without ambition, an empty shell for the player to commandeer
 Archetype: Blank
