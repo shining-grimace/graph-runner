@@ -11,10 +11,10 @@
 	- Draw story beats
 	- Refine story with all the above considered
 3. Define Mechanics
-	- Define moveset
-	- Enumerate player states
-	- Define state transitions
-	- Design extra-player mechanics
+	- ✅ Define moveset
+	- ✅ Enumerate player states
+	- ✅ Define state transitions
+	- ✅ Design extra-player mechanics
 	- Refine story considering mechanics
 4. Core Design
 	- Splash screen
