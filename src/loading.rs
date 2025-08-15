@@ -99,7 +99,7 @@ fn remove_loading_ui(
 
 fn init_game_assets(ass: Res<AssetServer>, mut game_assets: ResMut<GameAssets>) {
     game_assets.dev_logo = ass.load("images/shining-grimace-logo.png");
-    game_assets.models = ass.load(GltfAssetLabel::Scene(0).from_asset("models/models.glb"));
+    game_assets.models = ass.load(GltfAssetLabel::Scene(0).from_asset("models/models.gltf"));
 }
 
 fn check_game_assets_ready(

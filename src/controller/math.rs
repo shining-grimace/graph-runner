@@ -1,3 +1,6 @@
+use crate::markers::WaterVolumeExtents;
+use bevy::prelude::*;
+
 /// Process timestep of acceleration with terminal velocity.
 ///
 /// No damping is applied until the terminal velocity is exceeded, at which point the
@@ -32,4 +35,29 @@ pub fn approach_zero(current: f32, delta_time: f32, max_speed: f32, stop_time: f
         true => new,
         false => 0.0,
     }
+}
+
+pub fn float_modulus(mut value: f32, range: f32) -> f32 {
+    let abs_range = range.abs();
+    while value > 0.5 * abs_range {
+        value -= abs_range;
+    }
+    while value < -0.5 * abs_range {
+        value += abs_range;
+    }
+    value
+}
+
+pub fn inside_volume(
+    point: &Vec3,
+    volume_position: &Vec3,
+    volume: &WaterVolumeExtents,
+    skin_thickness: f32,
+) -> bool {
+    let relative_x = (point.x - volume_position.x).abs();
+    let relative_y = (point.y - volume_position.y).abs();
+    let relative_z = (point.z - volume_position.z).abs();
+    relative_x < (volume.half_extent_x + skin_thickness)
+        && relative_y < (volume.half_extent_y + skin_thickness)
+        && relative_z < (volume.half_extent_z + skin_thickness)
 }

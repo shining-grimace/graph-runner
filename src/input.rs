@@ -3,17 +3,17 @@ use bevy::prelude::*;
 
 #[derive(Default, Resource)]
 pub struct MovementState {
+    // Directional movement
     pub input_direction_x: f32,
+    pub input_direction_y: f32,
+
+    // Jump input
     pub pressing_jump: bool,
     pub just_pressed_jump: bool,
-}
 
-impl MovementState {
-    pub fn reset(&mut self) {
-        self.input_direction_x = 0.0;
-        self.pressing_jump = false;
-        self.just_pressed_jump = false;
-    }
+    // Secondary input
+    pub pressing_secondary: bool,
+    pub just_pressed_secondary: bool,
 }
 
 pub struct InputPlugin;
@@ -36,7 +36,8 @@ fn poll_inputs(
     }
 
     let was_previously_pressing_jump = input_state.pressing_jump;
-    input_state.reset();
+    let was_previously_pressing_secondary = input_state.pressing_secondary;
+    *input_state = MovementState::default();
 
     let pressing_left =
         keyboard_input.pressed(KeyCode::ArrowLeft) || keyboard_input.pressed(KeyCode::KeyA);
@@ -52,8 +53,28 @@ fn poll_inputs(
         0.0
     };
 
+    let pressing_up =
+        keyboard_input.pressed(KeyCode::ArrowUp) || keyboard_input.pressed(KeyCode::KeyW);
+    let pressing_down =
+        keyboard_input.pressed(KeyCode::ArrowDown) || keyboard_input.pressed(KeyCode::KeyS);
+    input_state.input_direction_y = if pressing_up && pressing_down {
+        0.0
+    } else if pressing_up {
+        1.0
+    } else if pressing_down {
+        -1.0
+    } else {
+        0.0
+    };
+
     let now_pressing_jump =
         keyboard_input.pressed(KeyCode::Space) || keyboard_input.pressed(KeyCode::KeyL);
     input_state.pressing_jump = now_pressing_jump;
     input_state.just_pressed_jump = now_pressing_jump && !was_previously_pressing_jump;
+
+    let now_pressing_secondary =
+        keyboard_input.pressed(KeyCode::ShiftLeft) || keyboard_input.pressed(KeyCode::KeyK);
+    input_state.pressing_secondary = now_pressing_secondary;
+    input_state.just_pressed_secondary =
+        now_pressing_secondary && !was_previously_pressing_secondary;
 }
