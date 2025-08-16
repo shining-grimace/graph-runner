@@ -1,5 +1,11 @@
-use crate::{loading::GameAssets, markers::UiRoot, state::AppState};
+use crate::{
+    app_draw_layer,
+    loading::GameAssets,
+    markers::{UiCamera, UiRoot},
+    state::AppState,
+};
 use bevy::{prelude::*, render::view::RenderLayers};
+use bevy_inspector_egui::bevy_egui::PrimaryEguiContext;
 
 pub struct SplashPlugin;
 
@@ -12,18 +18,20 @@ impl Plugin for SplashPlugin {
 
 fn spawn_splash_ui(mut commands: Commands, game_assets: Res<GameAssets>) {
     commands.spawn((
+        UiCamera,
         Camera2d::default(),
         Camera {
             clear_color: ClearColorConfig::None,
-            order: 1,
+            order: app_draw_layer::HUD as isize,
             ..default()
         },
-        RenderLayers::layer(1),
+        RenderLayers::layer(app_draw_layer::HUD),
+        PrimaryEguiContext,
     ));
     commands
         .spawn((
             UiRoot,
-            RenderLayers::layer(1),
+            RenderLayers::layer(app_draw_layer::HUD),
             Node {
                 flex_direction: FlexDirection::Row,
                 justify_content: JustifyContent::Center,
@@ -69,7 +77,7 @@ fn spawn_splash_ui(mut commands: Commands, game_assets: Res<GameAssets>) {
 fn remove_splash_ui(
     mut commands: Commands,
     ui_query: Query<Entity, With<UiRoot>>,
-    camera_query: Query<Entity, With<Camera2d>>,
+    camera_query: Query<Entity, With<UiCamera>>,
 ) -> Result<(), BevyError> {
     let ui = ui_query.single()?;
     commands.entity(ui).despawn();

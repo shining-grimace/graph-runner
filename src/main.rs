@@ -2,6 +2,7 @@ mod camera;
 mod controller;
 mod game;
 mod input;
+mod inspector;
 mod lighting;
 mod loading;
 mod markers;
@@ -10,19 +11,20 @@ mod splash;
 mod state;
 
 use avian3d::prelude::*;
-use bevy::{input::common_conditions::input_toggle_active, prelude::*};
-use bevy_inspector_egui::{bevy_egui::EguiPlugin, quick::WorldInspectorPlugin};
+use bevy::prelude::*;
 use bevy_skein::SkeinPlugin;
+
+mod app_draw_layer {
+    pub const MAIN: usize = 0;
+    pub const HUD: usize = 1;
+}
 
 fn main() {
     App::new()
         .insert_resource(ClearColor(Color::srgb(0.2, 0.2, 0.2)))
         .add_plugins((
             DefaultPlugins,
-            EguiPlugin {
-                enable_multipass_for_primary_context: true,
-            },
-            WorldInspectorPlugin::new().run_if(input_toggle_active(true, KeyCode::ControlLeft)),
+            inspector::InspectorPlugin,
             PhysicsPlugins::default(),
             SkeinPlugin::default(),
             state::StatePlugin,

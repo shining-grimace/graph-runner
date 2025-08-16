@@ -1,6 +1,7 @@
-use crate::{markers::Player, state::AppState};
+use crate::{app_draw_layer, markers::Player, state::AppState};
 use avian3d::schedule::PhysicsSet;
-use bevy::{prelude::*, transform::TransformSystem};
+use bevy::{prelude::*, render::view::RenderLayers, transform::TransformSystem};
+use bevy_inspector_egui::bevy_egui::PrimaryEguiContext;
 
 const CAMERA_DISTANCE: f32 = 20.0;
 
@@ -22,7 +23,21 @@ impl Plugin for GameCameraPlugin {
 fn spawn_camera(mut commands: Commands) {
     commands.spawn((
         Camera3d::default(),
+        Camera {
+            order: app_draw_layer::MAIN as isize,
+            ..default()
+        },
         Transform::from_xyz(0.0, 0.0, CAMERA_DISTANCE).looking_at(Vec3::ZERO, Vec3::Y),
+        RenderLayers::layer(app_draw_layer::MAIN),
+    ));
+    commands.spawn((
+        Camera2d::default(),
+        Camera {
+            order: app_draw_layer::HUD as isize,
+            ..default()
+        },
+        RenderLayers::layer(app_draw_layer::HUD),
+        PrimaryEguiContext,
     ));
 }
 

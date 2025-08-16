@@ -10,6 +10,10 @@ pub struct UiRoot;
 
 #[derive(Component, Reflect)]
 #[reflect(Component)]
+pub struct UiCamera;
+
+#[derive(Component, Reflect)]
+#[reflect(Component)]
 pub struct Player;
 
 #[derive(Component, Reflect)]

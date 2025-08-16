@@ -1,5 +1,10 @@
-use crate::{markers::UiRoot, state::AppState};
+use crate::{
+    app_draw_layer,
+    markers::{UiCamera, UiRoot},
+    state::AppState,
+};
 use bevy::{asset::LoadState, prelude::*, render::view::RenderLayers};
+use bevy_inspector_egui::bevy_egui::PrimaryEguiContext;
 
 #[derive(Resource, Default)]
 pub struct GameAssets {
@@ -35,13 +40,15 @@ impl Plugin for LoadingPlugin {
 
 fn spawn_loading_ui(mut commands: Commands) {
     commands.spawn((
+        UiCamera,
         Camera2d::default(),
         Camera {
             clear_color: ClearColorConfig::None,
-            order: 1,
+            order: app_draw_layer::HUD as isize,
             ..default()
         },
-        RenderLayers::layer(1),
+        RenderLayers::layer(app_draw_layer::HUD),
+        PrimaryEguiContext,
     ));
 
     commands
@@ -79,7 +86,7 @@ fn spawn_loading_ui(mut commands: Commands) {
 fn remove_loading_ui(
     mut commands: Commands,
     ui_query: Query<Entity, With<UiRoot>>,
-    camera_query: Query<Entity, With<Camera>>,
+    camera_query: Query<Entity, With<UiCamera>>,
 ) -> Result<(), BevyError> {
     let ui = ui_query.single()?;
     commands.entity(ui).despawn();
