@@ -1,7 +1,7 @@
 use crate::{loading::GameAssets, state::AppState};
 use bevy::prelude::*;
 
-pub const PLAYER_HEIGHT: f32 = 1.74;
+pub const PLAYER_HEIGHT: f32 = 1.70;
 
 pub struct GamePlugin;
 

@@ -1,4 +1,7 @@
-use avian3d::prelude::*;
+use avian3d::{
+    math::{Scalar, Vector},
+    prelude::*,
+};
 use bevy::{
     ecs::{component::HookContext, world::DeferredWorld},
     prelude::*,
@@ -19,7 +22,10 @@ pub struct Player;
 #[derive(Component, Reflect)]
 #[reflect(Component)]
 #[component(storage = "SparseSet")]
-pub struct Grounded;
+pub struct Grounded {
+    pub normal: Vector,
+    pub distance: Scalar,
+}
 
 #[derive(Component, Reflect)]
 #[reflect(Component)]
