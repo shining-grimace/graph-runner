@@ -2754,7 +2754,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "graph-runner-demo"
+name = "graph-runner"
 version = "0.1.0"
 dependencies = [
  "avian3d",
