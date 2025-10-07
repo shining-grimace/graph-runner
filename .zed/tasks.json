@@ -1,0 +1,7 @@
+[
+  {
+    "label": "RustAppRun",
+    "command": "cargo run",
+    "hide": "on_success"
+  }
+]

@@ -1,0 +1,16 @@
+[
+  {
+    "label": "RustAppDebug",
+    "adapter": "CodeLLDB",
+    "request": "launch",
+    "program": "target/debug/graph-runner",
+    "build": {
+      "command": "cargo",
+      "args": ["build"]
+    },
+    "env": {
+      "CARGO_MANIFEST_DIR": "$ZED_WORKTREE_ROOT",
+      "LD_LIBRARY_PATH": "/home/thomas/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/x86_64-unknown-linux-gnu/lib:$ZED_WORKTREE_ROOT/target/debug/deps"
+    }
+  }
+]
