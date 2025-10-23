@@ -10,15 +10,17 @@ use avian3d::{
 };
 use bevy::prelude::*;
 
-#[derive(Component, Reflect)]
-#[reflect(Component)]
+#[derive(Component, Reflect, Default)]
+#[reflect(Component, Default)]
 #[require(
     Player = Player,
     Collider = PlayerController::collider(0.0),
-    RigidBody::Kinematic, // Includes LinearVelocity
+    RigidBody::Static, // Includes LinearVelocity
     LockedAxes::ROTATION_LOCKED
 )]
-pub struct PlayerController;
+pub struct PlayerController {
+    velocity: Vector,
+}
 
 impl PlayerController {
     /// Build a collider, reducing by a skin thickness
@@ -67,6 +69,14 @@ impl Default for CharacterControllerParams {
 /// https://www.youtube.com/watch?v=YR6Q7dUz2uk
 ///
 ///
+/// Notes on Avian:
+/// The LinearVelocity component is manipulated a fair bit by Avian, so this controller uses a
+/// separate component for velocity that's retained across frames.
+/// Furthermore, a non-static RigidBody will have its position updated by Avian in the [SolverSet]
+/// (by calculating [AccumulatedTranslation] as LinearVelocity over time delta, and adding that to the
+/// Position which is later written back to the Translation. All this is avoided here by using a static
+/// RigidBody. See [SolverPlugin] and [IntegratorPlugin].
+///
 /// Notes on using Skein:
 /// Be careful which entities have components; a Blender model will have an entity for the object, and
 /// a child entity for the mesh, so the player should have components inserted on the object while a
@@ -86,6 +96,8 @@ impl Plugin for CharacterControllerPlugin {
             .add_systems(
                 // The Avian schedule runs in the fixed timestep schedule.
                 // Fixed timestep runs zero or more times before Update.
+                // Also note Position should be managed in these systems rather than Transform
+                // because they're required to run in the SubstepSchedule (to run spatial queries).
                 PhysicsSchedule,
                 (move_player, update_grounded)
                     .chain()
@@ -96,70 +108,67 @@ impl Plugin for CharacterControllerPlugin {
 }
 
 fn apply_gravity(
-    mut query: Query<&mut LinearVelocity, With<PlayerController>>,
+    mut query: Query<&mut PlayerController>,
     params: Res<CharacterControllerParams>,
     time: Res<Time>,
 ) -> Result<(), BevyError> {
     let delta_time = time.delta_secs();
-    let Ok(mut velocity) = query.single_mut() else {
+    let Ok(mut controller) = query.single_mut() else {
         println!("Not running apply_gravity this timestep");
         return Ok(());
     };
-    velocity.0 += params.gravity * delta_time;
+    controller.velocity += params.gravity * delta_time;
     Ok(())
 }
 
 fn apply_inputs(
-    mut query: Query<(&mut LinearVelocity, Has<Grounded>), With<PlayerController>>,
+    mut query: Query<(&mut PlayerController, Has<Grounded>)>,
     params: Res<CharacterControllerParams>,
     inputs: Res<MovementState>,
     time: Res<Time>,
 ) -> Result<(), BevyError> {
     let delta_time = time.delta_secs();
-    let Ok((mut velocity, is_grounded)) = query.single_mut() else {
+    let Ok((mut controller, is_grounded)) = query.single_mut() else {
         println!("Not running apply_inputs this timestep");
         return Ok(());
     };
-    velocity.x = (velocity.x
+    controller.velocity.x = (controller.velocity.x
         + inputs.input_direction_x * params.movement_acceleration * delta_time)
         .min(params.move_max_speed)
         .max(-params.move_max_speed);
-    velocity.z = 0.0;
+    controller.velocity.z = 0.0;
     if inputs.just_pressed_jump && is_grounded {
-        velocity.y += params.jump_impulse;
+        controller.velocity.y += params.jump_impulse;
     }
     Ok(())
 }
 
 /// Slows down movement in the X direction
 fn apply_movement_damping(
-    mut query: Query<&mut LinearVelocity, With<PlayerController>>,
+    mut query: Query<&mut PlayerController>,
     params: Res<CharacterControllerParams>,
 ) -> Result<(), BevyError> {
-    let Ok(mut velocity) = query.single_mut() else {
+    let Ok(mut controller) = query.single_mut() else {
         println!("Not running apply_movement_damping this timestep");
         return Ok(());
     };
-    velocity.x *= params.movement_damping_factor;
+    controller.velocity.x *= params.movement_damping_factor;
     Ok(())
 }
 
 /// Kinematic bodies don't get pushed by collisions by default, allowing a custom resolver to work.
 fn move_player(
-    mut controllers_query: Query<
-        (Entity, &mut Transform, &mut LinearVelocity),
-        With<PlayerController>,
-    >,
+    mut controllers_query: Query<(Entity, &mut Transform, &mut PlayerController)>,
     spatial_queries: Res<SpatialQueryPipeline>,
     params: Res<CharacterControllerParams>,
     time: Res<Time>,
 ) -> Result<(), BevyError> {
-    let Ok((entity, mut transform, mut velocity)) = controllers_query.single_mut() else {
+    let Ok((entity, mut transform, mut controller)) = controllers_query.single_mut() else {
         println!("Not running move_player this timestep");
         return Ok(());
     };
     let shape = PlayerController::collider(params.collider_skin_thickness);
-    let attempted_displacement = time.delta_secs() * velocity.0;
+    let attempted_displacement = time.delta_secs() * controller.velocity;
 
     let new_position = move_and_collide_and_slide(
         spatial_queries,
@@ -172,7 +181,7 @@ fn move_player(
     );
     let travel = new_position - transform.translation;
     transform.translation = new_position;
-    velocity.0 = travel / time.delta_secs();
+    controller.velocity = travel / time.delta_secs();
     Ok(())
 }
 
@@ -180,17 +189,17 @@ fn move_player(
 /// The player is grounded if the shape cast has a hit with a normal that isn't too steep.
 fn update_grounded(
     mut commands: Commands,
-    mut query: Query<(Entity, &Position, &Rotation), With<PlayerController>>,
+    mut query: Query<(Entity, &Transform, &Rotation), With<PlayerController>>,
     spatial_queries: Res<SpatialQueryPipeline>,
     params: Res<CharacterControllerParams>,
 ) -> Result<(), BevyError> {
-    let Ok((entity, position, rotation)) = query.single_mut() else {
+    let Ok((entity, transform, rotation)) = query.single_mut() else {
         println!("Not running update_grounded this timestep");
         return Ok(());
     };
 
     let shape = PlayerController::collider(0.0);
-    let origin = position.0;
+    let origin = transform.translation;
     let shape_rotation = Quaternion::default();
     let direction = Dir3::NEG_Y;
     let config = ShapeCastConfig {
@@ -254,6 +263,9 @@ fn move_and_collide_and_slide(
     match closest_hit {
         None => position + attempted_displacement,
         Some(hit) => {
+            if hit.distance == 0.0 {
+                println!("WARNING: Looks like the player is intersecting a static body!")
+            }
             let travel = (hit.distance - params.collider_skin_thickness) * direction;
             let remaining_displacement = attempted_displacement - travel;
             let remaining_along_normal = remaining_displacement.project_onto(hit.normal2);
