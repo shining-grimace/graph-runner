@@ -32,7 +32,7 @@ pub fn schedule_systems(app: &mut App) {
             )
                 .chain()
                 .run_if(in_state(AppState::Game))
-                .in_set(PhysicsStepSet::Last),
+                .in_set(PhysicsStepSystems::Last),
         )
         .add_systems(
             Update,

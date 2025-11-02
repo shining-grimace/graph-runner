@@ -3,7 +3,7 @@ use avian3d::{
     prelude::*,
 };
 use bevy::{
-    ecs::{component::HookContext, world::DeferredWorld},
+    ecs::{lifecycle::HookContext, world::DeferredWorld},
     prelude::*,
 };
 
@@ -35,12 +35,7 @@ pub struct Trimesh;
 pub struct MarkerPlugin;
 
 impl Plugin for MarkerPlugin {
-    fn build(&self, app: &mut App) {
-        app.register_type::<UiRoot>()
-            .register_type::<Player>()
-            .register_type::<Grounded>()
-            .register_type::<Trimesh>();
-    }
+    fn build(&self, _app: &mut App) {}
 }
 
 fn on_trimesh_added(mut world: DeferredWorld, context: HookContext) {

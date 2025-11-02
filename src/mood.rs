@@ -79,7 +79,7 @@ impl PhysicalLevelSegment {
     }
 }
 
-#[derive(Event)]
+#[derive(Message)]
 pub struct NewMood(Mood);
 
 #[derive(Default, Resource)]
@@ -107,7 +107,7 @@ pub struct MoodPlugin;
 
 impl Plugin for MoodPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<NewMood>()
+        app.add_message::<NewMood>()
             .insert_resource(MoodParams::default())
             .add_systems(
                 PreUpdate,
@@ -122,7 +122,7 @@ impl Plugin for MoodPlugin {
     }
 }
 
-fn process_mood_events(mut mood_params: ResMut<MoodParams>, mut events: EventReader<NewMood>) {
+fn process_mood_events(mut mood_params: ResMut<MoodParams>, mut events: MessageReader<NewMood>) {
     for event in events.read() {
         mood_params.transitioning_from_color = Some(mood_params.get_current_color());
         mood_params.current_mood = event.0;

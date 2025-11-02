@@ -1,6 +1,6 @@
 use crate::{app_draw_layer, markers::Player, state::AppState};
-use avian3d::schedule::PhysicsSet;
-use bevy::{prelude::*, render::view::RenderLayers, transform::TransformSystem};
+use avian3d::schedule::PhysicsSystems;
+use bevy::{camera::visibility::RenderLayers, prelude::*, transform::TransformSystems};
 use bevy_inspector_egui::bevy_egui::PrimaryEguiContext;
 
 const CAMERA_DISTANCE: f32 = 20.0;
@@ -14,8 +14,8 @@ impl Plugin for GameCameraPlugin {
                 PostUpdate,
                 update_camera
                     .run_if(in_state(AppState::Game))
-                    .after(PhysicsSet::Sync)
-                    .before(TransformSystem::TransformPropagate),
+                    .after(PhysicsSystems::Writeback)
+                    .before(TransformSystems::Propagate),
             );
     }
 }

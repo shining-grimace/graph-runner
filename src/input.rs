@@ -28,7 +28,7 @@ impl Plugin for InputPlugin {
 fn poll_inputs(
     keyboard_input: Res<ButtonInput<KeyCode>>,
     mut input_state: ResMut<MovementState>,
-    mut exit_signal: EventWriter<AppExit>,
+    mut exit_signal: MessageWriter<AppExit>,
 ) {
     if keyboard_input.just_pressed(KeyCode::Escape) {
         exit_signal.write(AppExit::Success);

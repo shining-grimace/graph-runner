@@ -4,7 +4,7 @@ use crate::{
     markers::{UiCamera, UiRoot},
     state::AppState,
 };
-use bevy::{prelude::*, render::view::RenderLayers};
+use bevy::{camera::visibility::RenderLayers, prelude::*};
 use bevy_inspector_egui::bevy_egui::PrimaryEguiContext;
 
 pub struct SplashPlugin;
@@ -66,8 +66,7 @@ fn spawn_splash_ui(mut commands: Commands, game_assets: Res<GameAssets>) {
                 },
                 TextColor(Color::srgb(0.8, 0.8, 0.1).into()),
                 TextLayout {
-                    justify: JustifyText::Center,
-
+                    justify: Justify::Center,
                     ..default()
                 },
             ));

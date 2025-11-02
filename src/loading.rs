@@ -3,7 +3,7 @@ use crate::{
     markers::{UiCamera, UiRoot},
     state::AppState,
 };
-use bevy::{asset::LoadState, prelude::*, render::view::RenderLayers};
+use bevy::{asset::LoadState, camera::visibility::RenderLayers, prelude::*};
 use bevy_inspector_egui::bevy_egui::PrimaryEguiContext;
 
 #[derive(Resource, Default)]
@@ -15,8 +15,8 @@ pub struct GameAssets {
 impl GameAssets {
     fn get_all_file_assets_untyped(&self) -> [UntypedHandle; 2] {
         [
-            self.dev_logo.clone_weak().untyped(),
-            self.models.clone_weak().untyped(),
+            self.dev_logo.clone().untyped(),
+            self.models.clone().untyped(),
         ]
     }
 }
@@ -76,7 +76,7 @@ fn spawn_loading_ui(mut commands: Commands) {
                 },
                 TextColor(Color::WHITE.into()),
                 TextLayout {
-                    justify: JustifyText::Center,
+                    justify: Justify::Center,
                     ..default()
                 },
             ));

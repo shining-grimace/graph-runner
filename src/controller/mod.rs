@@ -8,7 +8,7 @@ use avian3d::{
     prelude::*,
 };
 use bevy::{
-    ecs::{component::HookContext, world::DeferredWorld},
+    ecs::{lifecycle::HookContext, world::DeferredWorld},
     prelude::*,
 };
 
@@ -129,12 +129,7 @@ pub struct CharacterControllerPlugin;
 
 impl Plugin for CharacterControllerPlugin {
     fn build(&self, app: &mut App) {
-        app.register_type::<Attachment>()
-            .register_type::<Manoeuvrability>()
-            .register_type::<HitProperties>()
-            .register_type::<PlayerHits>()
-            .register_type::<PlayerController>()
-            .insert_resource(params::CharacterControllerParams::default());
+        app.insert_resource(params::CharacterControllerParams::default());
         systems::schedule_systems(app);
     }
 }
