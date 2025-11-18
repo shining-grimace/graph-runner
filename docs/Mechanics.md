@@ -143,3 +143,8 @@ Important mechanics per beat:
 - The entity that the dialog relates to will gain a `CameraTracking` component
 - Background dialog is a temporary hovering box above the entity
 - Interactive dialog is a box presented in the HUD which can flick pages when the user presses a button
+## Carrying
+Player carries items:
+- An artwork with a health meter (reduce health when dropped)
+- Money of some amount (reduce amount when dropped, and when dropped money is touched by an enemy)
+- A pass to get back into the Palace; when this is lost it is Game Over but the player can choose to keep playing anyway

@@ -3,34 +3,47 @@
 > Individually, they must act on personal goals and human needs, show unexpected yet realistic characteristics (maybe carry a symbol, respond unexpectedly, defy stereotypes, have strange habits, have delusional self-perception), have a bold introduction (characteristic action or dialog), be likeable (displaying morality, suffering, or strength), and evolve in dealing with conflict (be haunted by it, then be faced by it in new urgency, and fearing the future).
 > All characters must have a goal, and always act on it. A good antagonist is an obstacle to the protagonist reaching their goals, and need not be a person, but regardless should have a reason for existing in the setting (if they're a person they need a goal and it should be at least understandable to some degree).
 ## The Player
-Description: Palace staff member, without ambition, an empty shell for the player to commandeer
-Archetype: Blank
-Goal: None
-Challenge: None
-Incitement: None
-Quirks: 
-Introduction: Thrust into action, dressed likewise to palace staff, off to sell artwork
+Description: Palace staff member, an ambiguous platform for the player to imbue meaning
+Archetype: The Hero
+Goal: Guided by player choices: either to keep working and keep the economy running while ignoring societal issues, or to lift up the disadvantaged through donations
+Challenge: Activism destabilising the economy
+Incitement: The activist chasing the player to steal money or possessions
+Quirks: Wears attire resembling that of the Homeless, while carrying a pass to the Palace
+Introduction: Thrust into action, dressed likewise to palace staff, off to sell an undisclosed item of value
 ## The Artist
 Description: Deceased leaving one son, uniquely talented, praised by aristocrats as a cultural pioneer, with tarnished reputation from underpaying staff on hard times
 Archetype: The Shadow
-Goal: Lift society through appreciation of the arts
-Challenge: 
-Incitement: 
+Goal: Lift society through appreciation of the arts, not bring everyone "down"
+Challenge: Lower classes didn't appreciate the art (but benefited from the economy); they sometimes threatened the Palace due to disagreement on how a beaver is suposed to live
+Incitement: Had to build a solid palace to protect from attacks by beavers who believe art is corroding society.
 Quirks: Artistic gifts unheard of for beavers, reads a well-kept Bible
 Introduction: Various in-game lore dialog
 ## The Artist's Son
-Description: A portly, solitary character
-Archetype: 
+Description: A portly, solitary character, working in secrecy to protect shame of undeserved praise
+Archetype: The Shapeshifter
 Goal: Continue mother's work sharing appreciation of art
 Challenge: Ashamed of undeserved praise and privilege, but employing the less-privileged
-Incitement: 
-Quirks: 
-Introduction: 
+Incitement: The Activist breaking in and discovering the machine
+Quirks: Likes to build music boxes, and is quite good, but doesn't want to sell them
+Introduction: Eluded to rather than met directly, shrouding them in secrecy
 ## The Activist
 Description: From the main community, driven to close the apparent societal divide by breaking the monopoly on art
 Archetype: Shapeshifter
 Goal: Society of equal opportunity and mutual respect
 Incitement: Wants to share the machine with the less-privileged, but the Artist's Son needs saving
+Quirks: 
+Introduction: 
+## The Cheeky Guard
+Description: A palace staff member who exists for comedic relief and representing the side of "lifting" society through the arts
+Archetype: The Trickster
+Goal: Make others laugh; it would be a shame if it were nothing else though
+Incitement: 
+Quirks: 
+Introduction: Standing around wearing something jocular and eye-catching to invite the player into dialog
+## The Humble Builder
+Description: A resident of the homeless valley who exists for world-building and being something to watch out of interest. Demonstrates how simple things can give purpose. The reason why buildings seem to grow throughout the story. Also, a counter-representation for the Activist, casting shade over the apparent injustice.
+Archetype: The Mentor
+Incitement: None
 Quirks: 
 Introduction: 
 # Beats
@@ -47,7 +60,7 @@ Introduction:
 	- Optional dialog mentions beavers are builders, not artists
 	- Optional dialog from staff outside palace mentions they once tried to paint and was quite good, but work was devalued by beavers at the market, suspicions they were dishonest and acting on behalf of the aristocratic camp
 4. Hand over proceeds
-	- Backdrop scene showing fetching new art from machine
+	- Backdrop scene showing fetching new art from machine (edit: save this for a plot twist later)
 	- Optional dialog mentions "acquisition" of machine
 	- Optional dialog explains how the machine works
 5. Carrying another artwork to sell

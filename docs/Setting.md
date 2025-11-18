@@ -34,7 +34,7 @@ Culture: Staff stand obediently in their positions as the Artist's Son works alo
 Features:
 - Palace of humble structure but other-worldly material
 - Single narrow path the only access, safeguarded by a mechanical gate and palace staff
-- Main work room, decorated with artwork, separated from the outside by a long lobby hall
+- Main work room, decorated with artwork, separated from the outside by a long lobby hall and locked door
 - A hidden prison with people who arrived on the island allegedly to conquer
 ## Homeless Valley
 Location: Adjacent to the Art Palace, lower ground than anywhere else
