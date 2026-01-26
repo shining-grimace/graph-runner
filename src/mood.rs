@@ -7,12 +7,8 @@ const MOOD_TRANSITION_DURATION: f32 = 2.0;
 pub enum Mood {
     #[default]
     Peace,
-    CallToAdventure,
     Confidence,
-    TwistNewSubquest,
     SubquestTension,
-    ReliefAfterSubquest,
-    TwistUnconstrainedQuest,
     Triumph,
     ReliefAfterQuest,
 }
@@ -21,9 +17,7 @@ impl Mood {
     pub fn get_background_color(&self) -> Color {
         match self {
             Mood::Peace => ClearColor::default().0,
-            Mood::CallToAdventure => css::RED.into(),
             Mood::Confidence => css::DARK_GRAY.into(),
-            Mood::TwistNewSubquest => css::BLUE_VIOLET.into(),
             Mood::SubquestTension => css::OLIVE.into(),
             _ => css::ALICE_BLUE.into(),
         }
