@@ -5,7 +5,7 @@ pub struct LightingPlugin;
 
 impl Plugin for LightingPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(AmbientLight {
+        app.insert_resource(GlobalAmbientLight {
             color: Color::WHITE,
             brightness: 1000.0,
             ..default()
