@@ -130,6 +130,15 @@ pub struct CharacterControllerParams {
 
     /// The horizontal speed below which a slide on ground will end
     pub unslide_speed_threshold: Scalar,
+
+    /// The height relative to the player above which ledge-grabbing triggers
+    pub ledge_grab_relative_y: Scalar,
+
+    /// The tolerance applied to scanning vertically for ledge-grabbing
+    pub ledge_grab_tolerance_y: Scalar,
+
+    /// The amount to move into a wall to check required space for ledge-grabbing
+    pub ledge_grab_required_inset: Scalar,
 }
 
 impl Default for CharacterControllerParams {
@@ -231,6 +240,9 @@ impl Default for CharacterControllerParams {
             landing_roll_speed_threshold: 3.0,
             unroll_speed_threshold: 1.0,
             unslide_speed_threshold: 1.0,
+            ledge_grab_relative_y: 1.0,
+            ledge_grab_tolerance_y: 0.2,
+            ledge_grab_required_inset: 0.5,
         }
     }
 }

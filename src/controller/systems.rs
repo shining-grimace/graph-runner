@@ -1,6 +1,7 @@
 use super::{
-    Attachment, GROUNDING_PROXIMITY, HitProperties, PlayerAndWaterEntities, PlayerController,
-    PlayerHits, SpecialMove, WALL_RETENTION_PROXIMITY, math, params::CharacterControllerParams,
+    Attachment, GROUNDING_PROXIMITY, HitProperties, MovementResult, PlayerAndWaterEntities,
+    PlayerController, PlayerHits, SpecialMove, WALL_RETENTION_PROXIMITY,
+    functions::check_aerial_hit_movement, math, params::CharacterControllerParams,
 };
 use crate::{
     controller::Manoeuvrability,
@@ -55,12 +56,6 @@ pub fn schedule_systems(app: &mut App) {
 
 const GROUND_CAST_MAX_HITS: u32 = 3;
 
-struct MovementResult {
-    new_position: Vec3,
-    new_attachment: Option<(Attachment, Option<SpecialMove>)>,
-    new_velocity: Option<Vector>,
-}
-
 #[derive(PartialEq)]
 enum CommonMarkerUpdates {
     Advance,
@@ -84,6 +79,9 @@ enum JumpMode {
     AwayFromNormal {
         normal: Vec3,
         upward_impulse_factor: Scalar,
+    },
+    Climb {
+        normal: Vec3,
     },
 }
 
@@ -262,6 +260,7 @@ fn update_markers(
         Entity,
         &PlayerHits,
         &PlayerController,
+        &mut Transform,
         Option<&Attachment>,
         Option<&SpecialMove>,
     )>,
@@ -269,7 +268,9 @@ fn update_markers(
     params: Res<CharacterControllerParams>,
     time: Res<Time>,
 ) -> Result<(), BevyError> {
-    let Ok((entity, hits, controller, attachment, special_move)) = player_query.single_mut() else {
+    let Ok((entity, hits, controller, mut transform, attachment, special_move)) =
+        player_query.single_mut()
+    else {
         println!("Not running update_markers this timestep");
         return Ok(());
     };
@@ -586,7 +587,7 @@ fn update_markers(
             Some(SpecialMove::Diving) => CommonMarkerUpdates::Advance,  // Should not happen
             Some(SpecialMove::Climbing { .. }) => CommonMarkerUpdates::Advance, // Should not happen
         },
-        Some(Attachment::LedgeGrabbed) => match special_move {
+        Some(Attachment::LedgeGrabbed { .. }) => match special_move {
             None => {
                 // Holding onto a ledge
                 if let Some(water_volume_entity) = in_water_volume {
@@ -604,10 +605,23 @@ fn update_markers(
             Some(SpecialMove::Landing { .. }) => CommonMarkerUpdates::Advance, // Should not happen
             Some(SpecialMove::Rolling { .. }) => CommonMarkerUpdates::Advance, // Should not happen
             Some(SpecialMove::Running) => CommonMarkerUpdates::Advance,        // Should not happen
-            Some(SpecialMove::Halting { .. }) => CommonMarkerUpdates::Advance, // Should not happen
-            Some(SpecialMove::Sliding) => CommonMarkerUpdates::Advance,        // Should not happen
-            Some(SpecialMove::Jumping) => CommonMarkerUpdates::Advance,        // Should not happen
-            Some(SpecialMove::Diving) => CommonMarkerUpdates::Advance,         // Should not happen
+            Some(SpecialMove::Halting { .. }) => {
+                // Just became attached to the ledge; no control briefly
+                if let Some(water_volume_entity) = in_water_volume {
+                    commands.entity(entity).insert((
+                        Attachment::Submerged {
+                            water_volume_entity,
+                        },
+                        SpecialMove::Halting { progress: 0.0 },
+                    ));
+                    CommonMarkerUpdates::None
+                } else {
+                    CommonMarkerUpdates::Advance
+                }
+            }
+            Some(SpecialMove::Sliding) => CommonMarkerUpdates::Advance, // Should not happen
+            Some(SpecialMove::Jumping) => CommonMarkerUpdates::Advance, // Should not happen
+            Some(SpecialMove::Diving) => CommonMarkerUpdates::Advance,  // Should not happen
             Some(SpecialMove::Climbing { .. }) => CommonMarkerUpdates::Advance,
         },
         Some(Attachment::Walled { .. }) => match special_move {
@@ -796,14 +810,19 @@ fn update_markers(
         Some(SpecialMove::Sliding) => {}
         Some(SpecialMove::Jumping) => {}
         Some(SpecialMove::Diving) => {}
-        Some(SpecialMove::Climbing { progress }) => {
+        Some(SpecialMove::Climbing { progress, normal }) => {
             let progress = progress + advance_rate * time.delta_secs();
             if progress > params.climbing_move_duration {
-                commands.entity(entity).remove::<SpecialMove>();
-            } else {
                 commands
                     .entity(entity)
-                    .insert(SpecialMove::Climbing { progress });
+                    .remove::<Attachment>()
+                    .remove::<SpecialMove>();
+                transform.translation -= params.ledge_grab_required_inset * normal;
+            } else {
+                commands.entity(entity).insert(SpecialMove::Climbing {
+                    progress,
+                    normal: *normal,
+                });
             }
         }
     }
@@ -844,7 +863,7 @@ fn apply_gravity(
                 false => (params.gravity, params.terminal_velocity),
             }
         }
-        Some(Attachment::LedgeGrabbed) => (Vector::ZERO, params.terminal_velocity),
+        Some(Attachment::LedgeGrabbed { .. }) => (Vector::ZERO, 0.0),
         Some(Attachment::Walled { .. }) => match special_move {
             Some(SpecialMove::Sliding) => (params.gravity, params.wall_slide_terminal_velocity),
             _ => (Vector::ZERO, 0.0),
@@ -952,10 +971,10 @@ fn apply_inputs(
                 )
             }
         },
-        Some(Attachment::LedgeGrabbed) => (
-            JumpMode::None,
-            SecondaryButtonMode::None,
-            ManoeuvreMode::Freewheel,
+        Some(Attachment::LedgeGrabbed { normal, .. }) => (
+            JumpMode::Climb { normal: *normal },
+            SecondaryButtonMode::KickFromWall { normal: *normal },
+            ManoeuvreMode::Freeze,
         ),
         Some(Attachment::Walled { normal, .. }) => match special_move {
             Some(SpecialMove::Landing { .. }) => (
@@ -1236,6 +1255,12 @@ fn apply_inputs(
                 commands.entity(entity).remove::<Attachment>();
                 commands.entity(entity).insert(SpecialMove::Jumping);
             }
+            JumpMode::Climb { normal } => {
+                commands.entity(entity).insert(SpecialMove::Climbing {
+                    progress: 0.0,
+                    normal,
+                });
+            }
         }
     }
     if inputs.just_pressed_secondary {
@@ -1386,32 +1411,18 @@ fn move_and_collide_and_slide(
             let slide_displacement = remaining_displacement - remaining_along_normal;
             let collision_position = position + travel;
 
-            // Check wall hits and find new attachments
-            let surface_verticality = hit.normal1.with_y(0.0).normalize_or_zero().dot(hit.normal1);
-            if !is_grounded && surface_verticality > params.wall_stick_vertical_strictness {
-                let incident_angle = attempted_displacement
-                    .with_y(0.0)
-                    .normalize_or_zero()
-                    .dot(hit.normal1);
-                if incident_angle < params.wall_stick_angle_threshold {
-                    let impact_strength = speed
-                        * attempted_displacement
-                            .normalize_or_zero()
-                            .dot(hit.normal1)
-                            .abs();
-                    if impact_strength > params.wall_stick_impact_threshold {
-                        return MovementResult {
-                            new_position: collision_position,
-                            new_attachment: Some((
-                                Attachment::Walled {
-                                    normal: hit.normal1,
-                                    progress: 0.0,
-                                },
-                                None,
-                            )),
-                            new_velocity: Some(Vec3::ZERO),
-                        };
-                    }
+            // Check wall hits and find new attachments if airborne
+            if !is_grounded {
+                if let Some(movement) = check_aerial_hit_movement(
+                    &spatial_queries,
+                    &entity_filter,
+                    &params,
+                    speed,
+                    &attempted_displacement,
+                    &collision_position,
+                    &hit,
+                ) {
+                    return movement;
                 }
             }
 

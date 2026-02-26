@@ -1,8 +1,12 @@
+mod functions;
 mod math;
 mod params;
 mod systems;
 
-use crate::{game::PLAYER_HEIGHT, markers::Player};
+use crate::{
+    game::{PLAYER_HEIGHT, PLAYER_RADIUS},
+    markers::Player,
+};
 use avian3d::{
     math::{Scalar, Vector},
     prelude::*,
@@ -15,6 +19,12 @@ use bevy::{
 const GROUNDING_PROXIMITY: Scalar = 0.4;
 const WALL_RETENTION_PROXIMITY: Scalar = 0.1;
 
+struct MovementResult {
+    new_position: Vec3,
+    new_attachment: Option<(Attachment, Option<SpecialMove>)>,
+    new_velocity: Option<Vector>,
+}
+
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
 #[component(
@@ -24,7 +34,7 @@ const WALL_RETENTION_PROXIMITY: Scalar = 0.1;
 )]
 pub enum Attachment {
     Grounded { normal: Vector },
-    LedgeGrabbed,
+    LedgeGrabbed { normal: Vector },
     Walled { normal: Vector, progress: f32 },
     Submerged { water_volume_entity: Entity },
     Floating { water_volume_entity: Entity },
@@ -35,7 +45,7 @@ impl Attachment {
         let value = world.get::<Self>(context.entity).unwrap();
         let progress = match value {
             Attachment::Grounded { .. } => 0.0,
-            Attachment::LedgeGrabbed => 0.0,
+            Attachment::LedgeGrabbed { .. } => 0.0,
             Attachment::Walled { progress, .. } => *progress,
             Attachment::Submerged { .. } => 0.0,
             Attachment::Floating { .. } => 0.0,
@@ -67,7 +77,7 @@ pub enum SpecialMove {
     Sliding,
     Jumping,
     Diving,
-    Climbing { progress: f32 },
+    Climbing { progress: f32, normal: Vec3 },
 }
 
 impl SpecialMove {
@@ -81,7 +91,7 @@ impl SpecialMove {
             SpecialMove::Sliding => 0.0,
             SpecialMove::Jumping => 0.0,
             SpecialMove::Diving => 0.0,
-            SpecialMove::Climbing { progress } => *progress,
+            SpecialMove::Climbing { progress, .. } => *progress,
         };
         if progress != 0.0 {
             return;
@@ -181,9 +191,8 @@ pub struct PlayerController {
 impl PlayerController {
     /// Build a collider, reducing by a skin thickness
     pub fn collider(skin_thickness: f32) -> Collider {
-        let player_radius = 0.4;
         Collider::cylinder(
-            player_radius - skin_thickness,
+            PLAYER_RADIUS - skin_thickness,
             PLAYER_HEIGHT - 2.0 * skin_thickness,
         )
     }
