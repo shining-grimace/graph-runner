@@ -16,6 +16,10 @@ pub struct MovementState {
     pub just_pressed_secondary: bool,
 }
 
+#[cfg(debug_assertions)]
+#[derive(Event)]
+pub struct DebugPressed;
+
 pub struct InputPlugin;
 
 impl Plugin for InputPlugin {
@@ -26,6 +30,7 @@ impl Plugin for InputPlugin {
 }
 
 fn poll_inputs(
+    #[cfg(debug_assertions)] mut commands: Commands,
     keyboard_input: Res<ButtonInput<KeyCode>>,
     mut input_state: ResMut<MovementState>,
     mut exit_signal: MessageWriter<AppExit>,
@@ -77,4 +82,9 @@ fn poll_inputs(
     input_state.pressing_secondary = now_pressing_secondary;
     input_state.just_pressed_secondary =
         now_pressing_secondary && !was_previously_pressing_secondary;
+
+    #[cfg(debug_assertions)]
+    if keyboard_input.just_pressed(KeyCode::KeyB) {
+        commands.trigger(DebugPressed);
+    }
 }

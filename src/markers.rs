@@ -21,6 +21,10 @@ pub struct Player;
 
 #[derive(Component, Reflect)]
 #[reflect(Component)]
+pub struct SpawnPoint;
+
+#[derive(Component, Reflect)]
+#[reflect(Component)]
 #[component(storage = "SparseSet")]
 pub struct Grounded {
     pub normal: Vector,

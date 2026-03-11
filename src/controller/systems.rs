@@ -1,15 +1,17 @@
 use super::{
-    Attachment, GROUNDING_PROXIMITY, HitProperties, MovementResult, PlayerAndWaterEntities,
-    PlayerController, PlayerHits, SpecialMove, WALL_RETENTION_PROXIMITY,
+    Attachment, GROUNDING_PROXIMITY, HitProperties, Manoeuvrability, MovementResult, PLAYER_HEIGHT,
+    PlayerAndWaterEntities, PlayerController, PlayerHits, SpecialMove, WALL_RETENTION_PROXIMITY,
     functions::check_aerial_hit_movement, math, params::CharacterControllerParams,
 };
 use crate::{
-    controller::Manoeuvrability,
-    game::PLAYER_HEIGHT,
     input::MovementState,
-    markers::{WaterVolume, WaterVolumeExtents},
+    markers::{SpawnPoint, WaterVolume, WaterVolumeExtents},
     state::AppState,
 };
+
+#[cfg(debug_assertions)]
+use crate::input::DebugPressed;
+
 use avian3d::{
     math::{Quaternion, Scalar, Vector},
     prelude::*,
@@ -52,6 +54,9 @@ pub fn schedule_systems(app: &mut App) {
             )
                 .run_if(in_state(AppState::Game)),
         );
+
+    #[cfg(debug_assertions)]
+    app.add_observer(respawn_on_debug_press);
 }
 
 const GROUND_CAST_MAX_HITS: u32 = 3;
@@ -107,13 +112,31 @@ enum ManoeuvreMode<'a> {
 fn on_scene_instance_ready(
     _on: On<SceneInstanceReady>,
     mut commands: Commands,
-    player_query: Query<Entity, With<PlayerController>>,
+    mut player_query: Query<
+        (Entity, &mut Transform),
+        (With<PlayerController>, Without<SpawnPoint>),
+    >,
     water_query: Query<Entity, With<WaterVolume>>,
+    spawn_points: Query<&Transform, (With<SpawnPoint>, Without<PlayerController>)>,
 ) -> Result<(), BevyError> {
-    let player_entity = player_query.single()?;
+    let (player_entity, mut player_transform) = player_query.single_mut()?;
     let mut excluded_entities: Vec<Entity> = water_query.iter().collect();
+    let spawn_transform = spawn_points.single()?;
     excluded_entities.push(player_entity);
     commands.insert_resource(PlayerAndWaterEntities::from_entities(&excluded_entities));
+    player_transform.translation = spawn_transform.translation;
+    Ok(())
+}
+
+#[cfg(debug_assertions)]
+fn respawn_on_debug_press(
+    _: On<DebugPressed>,
+    mut player_query: Query<&mut Transform, (With<PlayerController>, Without<SpawnPoint>)>,
+    spawn_points: Query<&Transform, (With<SpawnPoint>, Without<PlayerController>)>,
+) -> Result<(), BevyError> {
+    let mut player_transform = player_query.single_mut()?;
+    let spawn_transform = spawn_points.single()?;
+    player_transform.translation = spawn_transform.translation;
     Ok(())
 }
 

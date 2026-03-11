@@ -1,12 +1,9 @@
 use crate::{loading::GameAssets, state::AppState};
 use bevy::prelude::*;
 
-pub const PLAYER_HEIGHT: f32 = 1.70;
-pub const PLAYER_RADIUS: f32 = 0.5;
+pub struct ScenePlugin;
 
-pub struct GamePlugin;
-
-impl Plugin for GamePlugin {
+impl Plugin for ScenePlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(AppState::Game), initialise_game);
     }

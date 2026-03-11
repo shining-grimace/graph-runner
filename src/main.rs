@@ -1,12 +1,13 @@
+mod animation;
 mod camera;
 mod controller;
-mod game;
 mod input;
 mod inspector;
 mod lighting;
 mod loading;
 mod markers;
 mod mood;
+mod scene;
 mod splash;
 mod state;
 
@@ -28,8 +29,9 @@ fn main() {
             PhysicsPlugins::default(),
             SkeinPlugin::default(),
             state::StatePlugin,
+            animation::AnimationPlugin,
             camera::GameCameraPlugin,
-            game::GamePlugin,
+            scene::ScenePlugin,
             input::InputPlugin,
             controller::CharacterControllerPlugin,
             lighting::LightingPlugin,

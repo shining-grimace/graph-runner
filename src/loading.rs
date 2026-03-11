@@ -10,14 +10,18 @@ use bevy_inspector_egui::bevy_egui::PrimaryEguiContext;
 pub struct GameAssets {
     pub dev_logo: Handle<Image>,
     pub models: Handle<Scene>,
+    pub character_animations: Vec<Handle<AnimationClip>>,
 }
 
 impl GameAssets {
-    fn get_all_file_assets_untyped(&self) -> [UntypedHandle; 2] {
-        [
-            self.dev_logo.clone().untyped(),
-            self.models.clone().untyped(),
-        ]
+    fn get_all_file_assets_untyped(&self) -> Vec<UntypedHandle> {
+        let mut handles = Vec::new();
+        handles.push(self.dev_logo.clone().untyped());
+        handles.push(self.models.clone().untyped());
+        for handle in self.character_animations.iter() {
+            handles.push(handle.clone().untyped())
+        }
+        handles
     }
 }
 
@@ -100,6 +104,10 @@ fn remove_loading_ui(
 fn init_game_assets(ass: Res<AssetServer>, mut game_assets: ResMut<GameAssets>) {
     game_assets.dev_logo = ass.load("images/shining-grimace-logo.png");
     game_assets.models = ass.load(GltfAssetLabel::Scene(0).from_asset("models/models.gltf"));
+    game_assets.character_animations = vec![
+        ass.load(GltfAssetLabel::Animation(0).from_asset("models/models.gltf")),
+        ass.load(GltfAssetLabel::Animation(1).from_asset("models/models.gltf")),
+    ];
 }
 
 fn check_game_assets_ready(

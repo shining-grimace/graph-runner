@@ -24,3 +24,26 @@ The phases of the game are:
 - Triumph as the finish line is reached
 - Relief once again
 
+# Notes
+
+## 3D Modelling
+
+Models are designed in Blender and exported to a glTF file. There's one file containing everything.
+
+Some things included in the glTF file:
+- Visual assets (terrain, player model, etc.)
+- A collision mesh (terrain)
+- Rigging and animations on the player model
+- Water volumes
+- Bevy components configured using the Skein extension
+
+When exporting the file as glTF, these are settings applied:
+- Remember Export Settings: checked
+- Include: nothing checked
+- Transform: +Y Up checked
+- Data: Mesh: Normals (and nothing else) checked
+- Data: Material: Materials Exported, Images None
+- Data: Skkinning: checked
+- Animation: checked
+- Animation: Animation Mode: Actions
+- skein: checked

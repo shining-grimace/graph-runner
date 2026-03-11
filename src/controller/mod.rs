@@ -3,10 +3,7 @@ mod math;
 mod params;
 mod systems;
 
-use crate::{
-    game::{PLAYER_HEIGHT, PLAYER_RADIUS},
-    markers::Player,
-};
+use crate::markers::Player;
 use avian3d::{
     math::{Scalar, Vector},
     prelude::*,
@@ -15,6 +12,9 @@ use bevy::{
     ecs::{lifecycle::HookContext, world::DeferredWorld},
     prelude::*,
 };
+
+pub const PLAYER_HEIGHT: f32 = 1.50;
+pub const PLAYER_RADIUS: f32 = 0.5;
 
 const GROUNDING_PROXIMITY: Scalar = 0.4;
 const WALL_RETENTION_PROXIMITY: Scalar = 0.1;
