@@ -3,8 +3,10 @@ use std::time::Duration;
 use bevy::prelude::*;
 
 use crate::{
+    InputSystems,
     controller::{Attachment, PlayerController, SpecialMove},
     loading::GameAssets,
+    state::AppState,
 };
 
 const ANIMATION_INDEX_IDLE: usize = 0;
@@ -12,6 +14,7 @@ const ANIMATION_INDEX_WALKING: usize = 1;
 
 #[derive(Resource)]
 struct CharacterAnimations {
+    current_index: Option<usize>,
     animations: Vec<AnimationNodeIndex>,
 }
 
@@ -19,8 +22,13 @@ pub struct AnimationPlugin;
 
 impl Plugin for AnimationPlugin {
     fn build(&self, app: &mut App) {
-        app.add_observer(set_up_character_graph)
-            .add_observer(change_animation);
+        app.add_systems(
+            PreUpdate,
+            update_player_animation
+                .in_set(InputSystems::AfterStateUpdates)
+                .run_if(in_state(AppState::Game)),
+        )
+        .add_observer(set_up_character_graph);
     }
 }
 
@@ -28,14 +36,13 @@ fn set_up_character_graph(
     trigger: On<Add, AnimationPlayer>,
     mut commands: Commands,
     game_assets: Res<GameAssets>,
-    player_query: Query<Entity, With<PlayerController>>,
-    mut animation_players: Query<(Entity, &mut AnimationPlayer)>,
+    mut player_query: Query<(Entity, &mut AnimationPlayer), With<PlayerController>>,
     mut graphs: ResMut<Assets<AnimationGraph>>,
 ) -> Result<(), BevyError> {
-    let Ok(character_entity) = player_query.single() else {
+    let Ok((player_entity, mut animation_player)) = player_query.single_mut() else {
         return Err("There is no character to attach the animation to.".into());
     };
-    if trigger.entity != character_entity {
+    if player_entity != trigger.entity {
         return Err("There is an animation player not targeted to the player.".into());
     }
 
@@ -48,52 +55,53 @@ fn set_up_character_graph(
     let first_node = node_indices[0];
 
     commands.insert_resource(CharacterAnimations {
+        current_index: None,
         animations: node_indices,
     });
 
-    for (player_entity, mut animation_player) in &mut animation_players {
-        if player_entity != trigger.entity {
-            continue;
-        }
-        let mut transitions = AnimationTransitions::new();
-        transitions
-            .play(&mut animation_player, first_node, Duration::ZERO)
-            .repeat();
-        commands
-            .entity(trigger.entity)
-            .insert(AnimationGraphHandle(graph_handle.clone()))
-            .insert(transitions);
-    }
+    let mut transitions = AnimationTransitions::new();
+    transitions
+        .play(&mut animation_player, first_node, Duration::ZERO)
+        .repeat();
+    commands
+        .entity(trigger.entity)
+        .insert(AnimationGraphHandle(graph_handle.clone()))
+        .insert(transitions);
 
     Ok(())
 }
 
-fn change_animation(
-    _: On<Add, SpecialMove>, // THIS EVENT ISN'T SUFFICIENT TO UPDATE ALL CASES!!!
-    //WHAT I'M CONFUSED ON: DOES THE AnimationPlayer NEED TO BE ON THE SAME ENTITY AS THE ROOT BONE? OR THE MESH? OR THE PARENT ARMATURE?
-    player_query: Query<
-        (&ChildOf, Option<&Attachment>, Option<&SpecialMove>),
+fn update_player_animation(
+    mut player_query: Query<
+        (
+            Option<&Attachment>,
+            Option<&SpecialMove>,
+            &mut AnimationPlayer,
+            &mut AnimationTransitions,
+        ),
         With<PlayerController>,
     >,
-    mut animation_players: Query<(Entity, &mut AnimationPlayer, &mut AnimationTransitions)>,
-    animations: Res<CharacterAnimations>,
+    mut animations: ResMut<CharacterAnimations>,
 ) -> Result<(), BevyError> {
-    let Ok((character_parent, attachment, special_move)) = player_query.single() else {
+    let Ok((attachment, special_move, mut animation_player, mut transitions)) =
+        player_query.single_mut()
+    else {
         return Err("No character found to update the animation for.".into());
     };
-    for (player_entity, mut animation_player, mut transitions) in &mut animation_players {
-        if player_entity != character_parent.0 {
-            continue;
+    let applicable_animation_index = player_animation_index_for(attachment, special_move);
+    if let Some(current_index) = animations.current_index {
+        if current_index == applicable_animation_index {
+            return Ok(());
         }
-        let animation_index = player_animation_index_for(attachment, special_move);
-        transitions
-            .play(
-                &mut animation_player,
-                animations.animations[animation_index],
-                Duration::from_millis(250),
-            )
-            .repeat();
     }
+    transitions
+        .play(
+            &mut animation_player,
+            animations.animations[applicable_animation_index],
+            Duration::from_millis(250),
+        )
+        .repeat();
+    animations.current_index = Some(applicable_animation_index);
     Ok(())
 }
 

@@ -1,4 +1,4 @@
-use crate::{markers::Player, state::AppState};
+use crate::{InputSystems, markers::Player, state::AppState};
 use bevy::{color::palettes::css, prelude::*};
 
 const MOOD_TRANSITION_DURATION: f32 = 2.0;
@@ -111,6 +111,7 @@ impl Plugin for MoodPlugin {
                     transition_moods,
                 )
                     .chain()
+                    .in_set(InputSystems::AfterStateUpdates)
                     .run_if(in_state(AppState::Game)),
             );
     }

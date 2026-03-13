@@ -20,6 +20,16 @@ mod app_draw_layer {
     pub const HUD: usize = 1;
 }
 
+/// Sets running in PreUpdate related to inputs (polling them per frame,
+/// updating things in the game according to inputus, and the effects to
+/// apply after things have been updated according to new inputs).
+#[derive(SystemSet, Debug, Hash, PartialEq, Eq, Clone)]
+enum InputSystems {
+    PollInputs,
+    ModifyStates,
+    AfterStateUpdates,
+}
+
 fn main() {
     App::new()
         .insert_resource(ClearColor(Color::srgb(0.2, 0.2, 0.2)))
@@ -40,5 +50,14 @@ fn main() {
             mood::MoodPlugin,
             splash::SplashPlugin,
         ))
+        .configure_sets(
+            PreUpdate,
+            (
+                InputSystems::PollInputs,
+                InputSystems::ModifyStates,
+                InputSystems::AfterStateUpdates,
+            )
+                .chain(),
+        )
         .run();
 }

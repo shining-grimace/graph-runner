@@ -7,6 +7,7 @@ use super::{
     params::CharacterControllerParams,
 };
 use crate::{
+    InputSystems,
     input::MovementState,
     markers::{SpawnPoint, WaterVolume, WaterVolumeExtents},
     state::AppState,
@@ -37,6 +38,7 @@ pub fn schedule_systems(app: &mut App) {
                 apply_inputs,  // Apply horizontal accelerations and vertical jump impulses
             )
                 .chain()
+                .in_set(InputSystems::ModifyStates)
                 .run_if(in_state(AppState::Game)),
         )
         .add_systems(

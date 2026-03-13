@@ -1,4 +1,4 @@
-use crate::state::AppState;
+use crate::{InputSystems, state::AppState};
 use bevy::prelude::*;
 
 #[derive(Default, Resource)]
@@ -24,8 +24,12 @@ pub struct InputPlugin;
 
 impl Plugin for InputPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(MovementState::default())
-            .add_systems(PreUpdate, poll_inputs.run_if(in_state(AppState::Game)));
+        app.insert_resource(MovementState::default()).add_systems(
+            PreUpdate,
+            poll_inputs
+                .in_set(InputSystems::PollInputs)
+                .run_if(in_state(AppState::Game)),
+        );
     }
 }
 
