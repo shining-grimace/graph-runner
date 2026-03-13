@@ -1,6 +1,6 @@
 use super::MovementResult;
 use crate::controller::{
-    Attachment, PlayerController, SpecialMove, params::CharacterControllerParams,
+    Attachment, Facing, PlayerController, SpecialMove, params::CharacterControllerParams,
 };
 use avian3d::{math::Quaternion, prelude::*};
 use bevy::prelude::*;
@@ -127,4 +127,14 @@ fn try_finding_wall(
         }
     }
     None
+}
+
+pub fn update_facing(from: &Facing, current_velocity: &Vec3) -> f32 {
+    match Vec3::new(current_velocity.x, 0.0, 0.0).try_normalize() {
+        Some(travel_facing) => match travel_facing.x > 0.0 {
+            true => std::f32::consts::FRAC_PI_2,
+            false => -std::f32::consts::FRAC_PI_2,
+        },
+        None => from.angle,
+    }
 }

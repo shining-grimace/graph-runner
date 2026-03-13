@@ -157,6 +157,19 @@ pub struct PlayerHits {
     wall: Option<HitProperties>,
 }
 
+#[derive(Component)]
+pub struct Facing {
+    angle: f32,
+}
+
+impl Default for Facing {
+    fn default() -> Self {
+        Self {
+            angle: std::f32::consts::FRAC_PI_2,
+        }
+    }
+}
+
 #[derive(Resource)]
 pub struct PlayerAndWaterEntities {
     pub entities: Vec<Entity>,
@@ -179,6 +192,7 @@ impl PlayerAndWaterEntities {
 #[require(
     Player = Player,
     Collider = PlayerController::collider(0.0),
+    Facing,
     PlayerHits,
     RigidBody::Static, // Includes LinearVelocity
     LockedAxes::ROTATION_LOCKED,

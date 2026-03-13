@@ -1,7 +1,10 @@
 use super::{
-    Attachment, GROUNDING_PROXIMITY, HitProperties, Manoeuvrability, MovementResult, PLAYER_HEIGHT,
-    PlayerAndWaterEntities, PlayerController, PlayerHits, SpecialMove, WALL_RETENTION_PROXIMITY,
-    functions::check_aerial_hit_movement, math, params::CharacterControllerParams,
+    Attachment, Facing, GROUNDING_PROXIMITY, HitProperties, Manoeuvrability, MovementResult,
+    PLAYER_HEIGHT, PlayerAndWaterEntities, PlayerController, PlayerHits, SpecialMove,
+    WALL_RETENTION_PROXIMITY,
+    functions::{check_aerial_hit_movement, update_facing},
+    math,
+    params::CharacterControllerParams,
 };
 use crate::{
     input::MovementState,
@@ -261,18 +264,19 @@ fn query_surrounding_hits(
     Ok(())
 }
 
-/// Hack: Replace Position with the Transform's translation just before the [`PhysicsTransformPlugin`]
-/// writes Position back to the Transform.
+/// Hack: Replace Avian's Position and Rotation components with the updated Transform's translation
+/// and rotation just before the [`PhysicsTransformPlugin`] writes them back to the Transform.
 /// Not sure how to control this properly so that the writeback doesn't occur for the player entity.
 /// I wonder if [`ApplyPosToTransform`] can be not applied to the player?
 fn hack_position_to_transform(
-    mut player_query: Query<(&Transform, &mut Position), With<PlayerController>>,
+    mut player_query: Query<(&Transform, &mut Position, &mut Rotation), With<PlayerController>>,
 ) -> Result<(), BevyError> {
-    let Ok((transform, mut position)) = player_query.single_mut() else {
+    let Ok((transform, mut position, mut rotation)) = player_query.single_mut() else {
         println!("Not running hack_position_to_transform this timestep");
         return Ok(());
     };
     position.0 = transform.translation;
+    rotation.0 = transform.rotation;
     Ok(())
 }
 
@@ -1323,6 +1327,7 @@ fn move_player(
         Entity,
         &mut Transform,
         &mut PlayerController,
+        &mut Facing,
         Option<&Attachment>,
     )>,
     spatial_queries: Res<SpatialQueryPipeline>,
@@ -1330,7 +1335,8 @@ fn move_player(
     params: Res<CharacterControllerParams>,
     time: Res<Time>,
 ) -> Result<(), BevyError> {
-    let Ok((entity, mut transform, mut controller, attachment)) = controllers_query.single_mut()
+    let Ok((entity, mut transform, mut controller, mut facing, attachment)) =
+        controllers_query.single_mut()
     else {
         println!("Not running move_player this timestep");
         return Ok(());
@@ -1371,6 +1377,10 @@ fn move_player(
     );
     let travel = result.new_position - from_position;
     transform.translation += travel;
+
+    facing.angle = update_facing(&facing, &travel);
+    transform.rotation = Quat::from_rotation_y(facing.angle);
+
     if let Some((attachment, special_move)) = result.new_attachment {
         commands.entity(entity).insert(attachment);
         if let Some(special_move) = special_move {
