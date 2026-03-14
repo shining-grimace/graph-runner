@@ -3,7 +3,7 @@ mod math;
 mod params;
 mod systems;
 
-use crate::markers::Player;
+use crate::markers::{CameraFocus, Player};
 use avian3d::{
     math::{Scalar, Vector},
     prelude::*,
@@ -193,6 +193,7 @@ impl PlayerAndWaterEntities {
     Player = Player,
     Collider = PlayerController::collider(0.0),
     Facing,
+    CameraFocus = CameraFocus::Active,
     PlayerHits,
     RigidBody::Static, // Includes LinearVelocity
     LockedAxes::ROTATION_LOCKED,

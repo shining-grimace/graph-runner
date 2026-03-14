@@ -23,6 +23,16 @@ pub struct Player;
 #[reflect(Component)]
 pub struct SpawnPoint;
 
+/// Marks entities which draw into the camera's field of view.
+/// The camera will try to maintain a view enclosing all of these
+/// which are considered 'active'.
+#[derive(Component, Debug, Reflect, PartialEq)]
+#[reflect(Component)]
+pub enum CameraFocus {
+    Active,
+    Proximity { distance: f32 },
+}
+
 #[derive(Component, Reflect)]
 #[reflect(Component)]
 #[component(storage = "SparseSet")]

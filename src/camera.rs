@@ -1,4 +1,4 @@
-use crate::{app_draw_layer, markers::Player, state::AppState};
+use crate::{app_draw_layer, markers::CameraFocus, state::AppState};
 use avian3d::schedule::PhysicsSystems;
 use bevy::{camera::visibility::RenderLayers, prelude::*, transform::TransformSystems};
 use bevy_inspector_egui::bevy_egui::PrimaryEguiContext;
@@ -42,12 +42,18 @@ fn spawn_camera(mut commands: Commands) {
 }
 
 fn update_camera(
-    mut camera_query: Query<&mut Transform, (With<Camera3d>, Without<Player>)>,
-    player_query: Query<&Transform, (With<Player>, Without<Camera>)>,
+    mut camera_query: Query<&mut Transform, (With<Camera3d>, Without<CameraFocus>)>,
+    focus_query: Query<(&Transform, &CameraFocus), (With<CameraFocus>, Without<Camera>)>,
 ) -> Result<(), BevyError> {
     let mut camera_transform = camera_query.single_mut()?;
-    let player_transform = player_query.single()?;
-    camera_transform.translation.x = player_transform.translation.x;
-    camera_transform.translation.y = player_transform.translation.y;
+    let Some(first_active_transform) = focus_query
+        .iter()
+        .find(|(_, focus)| **focus == CameraFocus::Active)
+        .map(|(transform, _)| transform)
+    else {
+        return Err("No focus found for game camera.".into());
+    };
+    camera_transform.translation.x = first_active_transform.translation.x;
+    camera_transform.translation.y = first_active_transform.translation.y;
     Ok(())
 }
